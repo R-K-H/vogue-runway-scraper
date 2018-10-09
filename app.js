@@ -6,8 +6,13 @@ const https = require('https')
 const fs = require('fs')
 //const Path = require("path")
 const _ = require('lodash')
-const collections = require('./results.json');
+const collections = require('./shows.json');
 //const collections = null
+
+const show = 'spring-2019-ready-to-wear'
+// Bring in all files for scraping
+const newImageSets = require('./images.json')
+
 const Xray = require('x-ray');
 const x = Xray({filters: {
     trim: function (value) {
@@ -39,7 +44,7 @@ const getLookCount = () => {
 							let thing = string.replace(/\n/g, ' ');
 							collect[collectionTitle] = thing
 							
-							fs.appendFile('counts.json', JSON.stringify(collect) + ',\n', function (err) {
+							fs.appendFile('look-counts.json', JSON.stringify(collect) + ',\n', function (err) {
 							  if (err) throw err;
 							  console.log('Saved!');
 							});
@@ -49,50 +54,6 @@ const getLookCount = () => {
 
 			req.end();
 		})
-}
-
-const getPage = (collection) => {
-	return new Promise(function(resolve, reject) {
-		let collectionTitle = collection.title
-		let link = 'www.vogue.com' 
-		let path = collection.link.replace('https://'+link, '')
-		var options = {
-		  host: link,
-		  path: path + '/slideshow/collection'
-		};
-
-		let content = ""; 
-		let req = https.request(options, function(res) {
-		    res.setEncoding("utf8");
-		    res.on("data", function (chunk) {
-		        content += chunk;
-		    });
-
-		    res.on("end", function () {
-		        x(content, ['script'])(function(error, obj){
-		        	if(error) {
-		        		console.log(error)
-						reject(error)
-		        	}
-					let string = JSON.stringify(obj)
-					let collect = {}
-					let thing = string.replace(/\n/g, ' ');
-					collect[collectionTitle] = thing
-					
-					fs.appendFile('scripts.json', JSON.stringify(collect) + ',\n', function (err) {
-					  if (err) {
-					  	console.log(err)
-					  	reject(err)
-					  }
-					  console.log('Saved!');
-					  resolve(true)
-					});
-				})
-		    });
-		});
-
-		req.end();
-	})
 }
 
 const getShows = () => {
@@ -106,7 +67,7 @@ const getShows = () => {
 				}
 			]
 		)
-		.write('results.json')
+		.write('shows.json')
 	} else {
 		var p = Promise.resolve();
 		_.forEach(collections, function(collection) {
@@ -156,7 +117,7 @@ const getShowImages = (slug, count) => {
 		    	})
 		    	let newOb = {}
 		    	newOb[slug] = imageArry
-		    	fs.appendFile('show-images.json', JSON.stringify(newOb) + ',\n', function (err) {
+		    	fs.appendFile('images.json', JSON.stringify(newOb) + ',\n', function (err) {
 				  if (err) {
 				  	console.log(err)
 				  }
@@ -167,6 +128,63 @@ const getShowImages = (slug, count) => {
 	})
 	req.end()
 }
+
+const download = (options) => {
+	return new Promise(function(resolve, reject) {
+		var uri = options.uri
+		var dir = options.dir
+		var filename = options.filename
+		let fileSizeInBytes = 0
+		if (!fs.existsSync(dir)){
+		    fs.mkdirSync(dir);
+		}
+		if (fs.existsSync(dir + filename)) {
+			let stats = fs.statSync(dir + filename)
+			fileSizeInBytes = stats.size
+		}
+
+		request.get(uri)
+		.on('error', function(err) {
+		    console.log(err)
+		    reject(err)
+		})
+		.on('response', function(response) {
+		    if(fileSizeInBytes == response.headers['content-length']) {
+		    	console.log(filename)
+		    	console.log('content-length: ' + response.headers['content-length'] + '/' + fileSizeInBytes)
+		    	resolve(true)
+		    } else {
+		    	console.log('Downloading ' + filename + ' with a size of ' + (response.headers['content-length'] / 1000000) + 'MB' )
+		    	response.pipe(fs.createWriteStream(dir + filename))
+				.on('close', function() {
+				    resolve(true)
+				})
+		    }
+		})
+	})
+}
+
+const getImages = () => {
+	var p = Promise.resolve();
+	_.forEach(newImageSets, async function(set) {
+		var i = 0;
+		_.forEach(_.values(set)[0], async function(image) {
+				i ++
+				var url = image
+
+				var designer = _.keys(set)[0].toUpperCase().replace(/(-+)/g, ' ')
+				// Download to a directory and save with the original filename
+				const options = {
+				  uri: url,
+				  dir: __dirname + '/images/' + show + '/' + designer + '/',
+				  filename:  designer + ' ' + i + '.jpg'         // Save to /path/to/dest/image.jpg
+				}
+				p = p.then(download.bind(null, options));
+		})
+	})
+	p.then(_ => console.log('done'));
+}
 getShowSlugs()
 //getShowImages('christopher-esber', 40)
 //getShows()
+//getImages()
