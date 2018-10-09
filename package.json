@@ -20,7 +20,8 @@
     "lodash": "^4.17.10",
     "html-entities": "^1.2.1",
     "request": "^2.87.0",
-    "image-downloader": "^3.4.1"
+    "image-downloader": "^3.4.1",
+    "aigle": "^1.12.0"
   },
   "engines": {},
   "repository": {
