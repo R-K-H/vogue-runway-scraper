@@ -39,7 +39,6 @@ const getLookCount = () => {
 			    res.on("end", function () {
 			        x(content, 
 						'.gallery-marker--count@html')(function(err, obj){
-							let string = JSON.stringify(obj)
 							let collect = {}
 							let thing = string.replace(/\n/g, ' ');
 							collect[collectionTitle] = thing
@@ -59,7 +58,7 @@ const getLookCount = () => {
 const getShows = () => {
 	if(_.isEmpty(collections)){
 		// Build list of pages we want to scrape
-		x('https://www.vogue.com/fashion-shows/spring-2019-ready-to-wear', 
+		x('https://www.vogue.com/fashion-shows/' + show, 
 			'.season-module li .tab-list--item', [
 				{
 				  title: 'a@html',
