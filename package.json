@@ -1,27 +1,19 @@
 {
   "name": "vogue-runway-scraper",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "private": true,
   "scripts": {
     "start": "node ./app.js",
-    "dev": "node ./app.js -- watch",
-    "build": "yarn run build:server && yarn run build:client",
-    "test": "jest"
+    "dev": "node ./app.js -- watch"
   },
   "dependencies": {
     "x-ray": "^2.3.3",
     "dotenv": "^5.0.1",
     "https": "^1.0.0",
-    "mathjs": "^4.2.2",
-    "moment": "^2.22.1",
-    "moment-timezone": "^0.5.21",
     "lodash": "^4.17.10",
-    "html-entities": "^1.2.1",
-    "request": "^2.87.0",
-    "image-downloader": "^3.4.1",
-    "aigle": "^1.12.0"
+    "request": "^2.87.0"
   },
   "engines": {},
   "repository": {
@@ -30,7 +22,6 @@
   },
   "keywords": [
     "node",
-    "postgres",
     "request"
   ],
   "author": "Kollan House",

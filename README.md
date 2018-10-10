@@ -1,5 +1,6 @@
 # Vogue Fashion Show Image Scraper
-This nodejs application takes a parameter and then builds several json files to parse with other functions all in order to download and organize runway show looks. 
+This nodejs application takes a parameter and then builds several json files to parse with other functions all in order to download and organize runway show looks. Please note this is working as of last commit date and I may not update it in between, therefore if html elements change then it might break.
+
 - https://www.vogue.com/fashion-shows
 
 ## Use
