@@ -145,12 +145,13 @@ class Vogue {
 		let imageSets = await this.checkStep(file, 2)
 		if(imageSets) {
 			let p = Promise.resolve()
+			let j = 0
 			_.forEach(imageSets, (set) => {
 				let i = 0
 				_.forEach(set, (image) => {
 					i ++
 					var url = image
-					var designer = _.keys(imageSets)[i-1].toUpperCase().replace(/(-+)/g, ' ')
+					var designer = _.keys(imageSets)[j].toUpperCase().replace(/(-+)/g, ' ')
 					// Download to a directory and save with the original filename
 					const params = {
 					  uri: url,
@@ -160,6 +161,7 @@ class Vogue {
 					}
 					p = p.then(this.downloadImage.bind(this, params))
 				})
+				j ++
 			})
 			p.then(resp => {
 				if(resp) {
