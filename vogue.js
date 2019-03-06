@@ -154,6 +154,7 @@ class Vogue {
 					// Download to a directory and save with the original filename
 					const params = {
 					  uri: url,
+					  parentDir: __dirname + '/images/' + this.show,
 					  dir: __dirname + '/images/' + this.show + '/' + designer + '/',
 					  filename:  designer + ' ' + i + '.jpg'         // Save to /path/to/dest/image.jpg
 					}
@@ -217,8 +218,12 @@ class Vogue {
 		return new Promise((resolve, reject) => {
 			const uri = params.uri
 			const dir = params.dir
+			const parentDir = params.parentDir
 			const filename = params.filename
 			let fileSizeInBytes = 0
+			if (!fs.existsSync(parentDir)){
+			  fs.mkdirSync(parentDir)
+			}
 			if (!fs.existsSync(dir)){
 			  fs.mkdirSync(dir)
 			}
