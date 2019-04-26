@@ -96,7 +96,7 @@ class Vogue {
 					}
 				]
 			)
-				.then((res) => {resolve(res)})
+			.then((res) => {resolve(res)})
 		})
 	}
 
@@ -124,12 +124,17 @@ class Vogue {
 						index: index,
 						length: array.length
 					}
-					promises.push(p = p.then(this.getShowImagesUrl.bind(this, params)))
+					promises.push(p = p.then(this.getShowImagesUrl.bind(this, params)).catch(err => console.log('\x1b[41m%s\x1b[0m', err)))
 				})
-				Promise.all(promises).then(resp => {
+				Promise.all(promises)
+				.then(resp => {
 					if(resp) {
 						 resolve(this.showImages)
 					}
+				})
+				.catch(error => {
+				  	console.log(error)
+				  	reject(false)
 				})
 			})
 		}
@@ -204,7 +209,7 @@ class Vogue {
 			    	console.log('fetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
 			    	resolve(true)
 					} else {
-						reject(false)
+						reject('fetch failed for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
 					}
 		    })
 			})
@@ -237,20 +242,21 @@ class Vogue {
 
 			request.get(uri)
 				.on('error', (err) => {
-			    console.log(err)
-			    reject(err)
+		    	console.log(err)
+		    	reject(err)
 				})
 				.on('response', (response) => {
 			    if(fileSizeInBytes == response.headers['content-length']) {
+			    	// TODO: add in close connection so we terminate
 			    	console.log(filename)
 			    	console.log('content-length: ' + response.headers['content-length'] + '/' + fileSizeInBytes)
 			    	resolve(true)
 			    } else {
 			    	console.log('Downloading ' + filename + ' with a size of ' + (response.headers['content-length'] / 1048576) + 'MB' )
 			    	response.pipe(fs.createWriteStream(dir + filename))
-					.on('close', () => {
-					    resolve(true)
-					})
+							.on('close', () => {
+					    	resolve(true)
+							})
 			    }
 				})
 		})
