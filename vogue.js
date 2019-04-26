@@ -67,7 +67,7 @@ class Vogue {
 				}
 			} else if (stepCount === 2){
 				let images = await this.getAllShowsLooksImages()
-				console.log(images)
+				//console.log(images)
 				if(images) {
 					fs.appendFile('./json/' + this.show + '-images.json', JSON.stringify(this.showImages), function (err) {
 					  if (err) {
@@ -248,8 +248,7 @@ class Vogue {
 				.on('response', (response) => {
 			    if(fileSizeInBytes == response.headers['content-length']) {
 			    	// TODO: add in close connection so we terminate
-			    	console.log(filename)
-			    	console.log('content-length: ' + response.headers['content-length'] + '/' + fileSizeInBytes)
+			    	console.log(filename + ' has a content-length: ' + response.headers['content-length'] + '/' + fileSizeInBytes + ' we already have it.')
 			    	resolve(true)
 			    } else {
 			    	console.log('Downloading ' + filename + ' with a size of ' + (response.headers['content-length'] / 1048576) + 'MB' )
