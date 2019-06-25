@@ -250,12 +250,16 @@ class Vogue {
 			    	reject(err)
 				})
 				.on('response', (response) => {
+					let message = Number((response.headers['content-length'] * 0.001).toFixed(4)) + ' KB'
+		    	if((response.headers['content-length'] * 0.000001) > 1) {
+		    		message = Number((response.headers['content-length'] * 0.000001).toFixed(4)) + ' MB'
+		    	}
 			    if(fileSizeInBytes == response.headers['content-length']) {
 			    	// TODO: add in close connection so we terminate
-			    	console.log(filename + ' has a content-length: ' + response.headers['content-length'] + '/' + fileSizeInBytes + ' we already have it.')
+			    	console.log('Compared ' + filename + ' stored file size matches fetched file size: ' + message)
 			    	setTimeout(resolve, this.rateLimit)
 			    } else {
-			    	console.log('Downloading ' + filename + ' with a size of ' + (response.headers['content-length'] / 1048576) + 'MB' )
+			    	console.log('Downloading ' + filename + ' with a size of ' + message)
 			    	response.pipe(fs.createWriteStream(dir + filename))
 						.on('close', () => {
 				    		setTimeout(resolve, this.rateLimit)
