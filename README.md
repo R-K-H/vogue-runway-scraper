@@ -3,7 +3,40 @@ This nodejs application takes a parameter and then builds several json files to 
 
 - https://www.vogue.com/fashion-shows
 
-## Use
+## Installation
+Simple easy to use node app.
+
+```shell
+npm install
+```
+
+If using in development environment, copy over the example.env over to .env, you'll use this to set which show. If you're using an editor through terminal:
+
+```shell
+cp example.env .env
+```
+
+Then set the `RATE_LIMIT`, `NODE_ENV` and `SHOW` environment variables to your desired show. For example:
+
+```
+RATE_LIMIT=500
+NODE_ENV=development
+SHOW=spring-2016-ready-to-wear
+```
+
+Note: 1000 ms = 1 second, so the rate limit is setup for miliseconds. If you're noticing issues with requests, try bumping it up, it'll reduce the frequency for the requests and might solve any issues.
+
+```shell
+node app.js
+```
+
+If using in a production enviornment:
+```shell
+RATE_LIMIT=500 SHOW='spring-2016-ready-to-wear' node app.js
+```
+
+## Functions
+
 `getShowsList()`
 
 This will get the list of shows from the page and organize it in a JSON file `(./json/shows.json)` with
@@ -39,21 +72,8 @@ Once you have the JSON file `(./json/shows.json)` then you are able to fetch all
 Once you have the JSON file `(./json/images.json)` then you are able to fetch each image. The download is called with a promise that builds a chain of promises to ensure one download is complete before the next one is started. This will save files in the `./images/{show}/{designer}` in an interative manner (eg. 1, 2, 3) depending on the order they are received from the JSON response from graphql.
 
 
-## Installation
-Simple easy to use node app.
-```
-npm install
-```
-
-```
-node app.js
-```
-
 ## Future
-- Build it into proper ES(X) with classes and exports etc
-- Allow user to pass in param and have it do everything
 - Allow user to set folder location
-- Set rate limits
 - Research and improve graphql query (might be able to select image size etc)
 - Setup unit tests
 - Setup compare tests (eg. folders have more images than the look should)

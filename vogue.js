@@ -4,7 +4,6 @@ const _ = require('lodash')
 const { join } = require('path')
 const Xray = require('x-ray')
 const request = require('request')
-const prependFile = require('prepend-file')
 
 const x = Xray({filters: {
     encodeUri: (value) => {
@@ -28,8 +27,9 @@ const x = Xray({filters: {
 const isDirectory = source => fs.lstatSync(source).isDirectory()
 
 class Vogue {
-	constructor(show){
+	constructor(show, rateLimit){
 		this.show = show
+		this.rateLimit = rateLimit
 		// Settings for app scraping
 		this.imageDirectory = __dirname + '/images/' + this.show // TODO: Cleanup not sure this needs to be here.
 		this.jsonDirectory = __dirname + '/json/'
@@ -199,18 +199,22 @@ class Vogue {
 
 		    res.on("end", () => {
 		    	let obj = JSON.parse(content)
-		    	if(obj.data.hasOwnProperty('fashionGallery') && obj.data.fashionGallery != null) {
-			    	let images = obj.data.fashionGallery.slidesV2.edges
-			    	let imageArry = []
-			    	_.forEach(images, (image) => {
-			    		imageArry.push(image.node.photosTout.url)
-			    	})
-			    	this.showImages[params.slug] = imageArry
-			    	console.log('fetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
-			    	resolve(true)
-					} else {
-						reject('fetch failed for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
-					}
+		    	if(obj.data.hasOwnProperty('fashionGallery') && obj.data.fashionGallery !== null) {
+		    		if(obj.data.fashionGallery.hasOwnProperty('slidesV2') && obj.data.fashionGallery !== null) {
+				    	let images = obj.data.fashionGallery.slidesV2.edges
+				    	let imageArry = []
+				    	_.forEach(images, (image) => {
+				    		imageArry.push(image.node.photosTout.url)
+				    	})
+				    	this.showImages[params.slug] = imageArry
+				    	console.log('fetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
+				    	setTimeout(resolve, this.rateLimit)
+				    } else {
+				    	reject('no images found for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
+				    }
+				} else {
+					reject('fetch failed for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
+				}
 		    })
 			})
 			// Was going to make this just output then build into a entire string output to file
@@ -242,20 +246,20 @@ class Vogue {
 
 			request.get(uri)
 				.on('error', (err) => {
-		    	console.log(err)
-		    	reject(err)
+			    	console.log(err)
+			    	reject(err)
 				})
 				.on('response', (response) => {
 			    if(fileSizeInBytes == response.headers['content-length']) {
 			    	// TODO: add in close connection so we terminate
 			    	console.log(filename + ' has a content-length: ' + response.headers['content-length'] + '/' + fileSizeInBytes + ' we already have it.')
-			    	resolve(true)
+			    	setTimeout(resolve, this.rateLimit)
 			    } else {
 			    	console.log('Downloading ' + filename + ' with a size of ' + (response.headers['content-length'] / 1048576) + 'MB' )
 			    	response.pipe(fs.createWriteStream(dir + filename))
-							.on('close', () => {
-					    	resolve(true)
-							})
+						.on('close', () => {
+				    		setTimeout(resolve, this.rateLimit)
+						})
 			    }
 				})
 		})

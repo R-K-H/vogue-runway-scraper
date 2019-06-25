@@ -1,8 +1,11 @@
-const dotenv = require("dotenv");
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 const Vogue = require('./vogue.js') 
 
-const show = 'fall-2017-ready-to-wear' // TODO: Make me an env var or better yet make me able to be an array?
+const show = process.env.SHOW
+const rateLimit = process.env.RATE_LIMIT
 
-vogue = new Vogue(show)
+vogue = new Vogue(show, rateLimit)
 
 vogue.run()
