@@ -16,9 +16,7 @@
     "x-ray": "^2.3.3"
   },
   "devDependencies": {
-    "@babel/polyfill": "^7.4.4",
     "babel-eslint": "^10.0.1",
-    "core-js": "^2.6.9",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.17.3",
