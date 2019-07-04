@@ -53,22 +53,22 @@ class Vogue {
       if (stepCount === 1) {
         let looks = await this.getShowsLooksList()
         if (looks) {
-          // fs.appendFile(path.join('./json/', this.show, '-looks.json'), JSON.stringify(looks), err => {
-          //   if (err) {
-          //     console.log(err)
-          //   }
-          //   console.log('Saved all looks to json file')
-          // })
+          fs.appendFile('./json/' + this.show + '-looks.json', JSON.stringify(looks), err => {
+            if (err) {
+              console.log(err)
+            }
+            console.log('saved all looks to json file')
+          })
           return new Promise((resolve, reject) => { resolve(looks) })
         }
       } else if (stepCount === 2) {
         let images = await this.getAllShowsLooksImages()
         if (images) {
-          fs.appendFile(path.join('./json/', this.show, '-images.json'), JSON.stringify(this.showImages), err => {
+          fs.appendFile('./json/' + this.show + '-images.json', JSON.stringify(this.showImages), err => {
             if (err) {
               console.log(err)
             }
-            console.log('Saved all images to json file')
+            console.log('saved all images to json file')
           })
           return new Promise((resolve, reject) => { resolve(images) })
         }
@@ -117,8 +117,7 @@ class Vogue {
             count: 200,
             last: false,
             index: index,
-            length: array.length,
-            file: file
+            length: array.length
           }
           promises.push(p = p.then(this.getShowImagesUrl.bind(this, params))
             .catch(err => console.log('\x1b[41m%s\x1b[0m', err))
@@ -183,7 +182,7 @@ class Vogue {
     return new Promise((resolve, reject) => {
       let query = '/graphql?query=query%20SlideshowPortraitPageRelayPaginationQuery($brandSlug:String!%20$count:Int!%20$cursor:String%20$galleryType:FashionGalleryTypeEnum!%20$hierarchy:String%20$seasonSlug:String!%20$slug:String){...SlideshowPortraitPageRelay}fragment%20SlideshowPortraitPageRelay%20on%20Root{...SiteContainerRelay%20...EndSlideRelay_data%20...SwipeSlideshowRelay_data%20fashionShow:fashionShowV2(slug:$slug){...RunwaySlideshowHeaderRelay_fashionShow%20photosTout{__typename%20...%20on%20Image{url%20id}...%20on%20Video{id}...%20on%20Clip{id}}...SlideshowTitleRelay_fashionShow%20...EndSlideRelay_fashionShow%20...SwipeSlideshowRelay_fashionShow%20...SocialSharerRelay%20...BaseHelmetRelay%20url%20brand{slug%20id}season{slug%20id}galleries{collection{id}atmosphere{id}beauty{id}detail{id}frontRow{id}}id}fashionGallery:fashionGalleryByType(brandSlug:$brandSlug,seasonSlug:$seasonSlug,galleryType:$galleryType){...SlideshowAdColumnRelay_fashionGallery%20...SocialSharerRelay%20slideCount%20slidesV2(after:$cursor,first:$count){edges{node{__typename%20...%20on%20SlideInterface{...GridViewRelay_slides%20caption%20credit%20id%20photosTout{__typename%20...%20on%20Image{url%20id}...%20on%20Video{id}...%20on%20Clip{id}}}...%20on%20CollectionSlide{details{...%20on%20Slide{photosTout{__typename%20...%20on%20Image{url%20id}...%20on%20Video{id}...%20on%20Clip{id}}}id}modaLink%20moveItVideo%20id}...%20on%20Slide{id}}cursor}pageInfo{endCursor%20hasNextPage}}id}}fragment%20SiteContainerRelay%20on%20Root{...FeedHeaderRelay%20...SiteHeaderRelay}fragment%20EndSlideRelay_data%20on%20Root{allContent(first:10,type:[%22FashionShowV2%22]){edges{node{__typename%20...%20on%20FashionShowV2{id%20url%20brand{name%20id}season{name%20id}galleries{atmosphere{photosTout{__typename%20...%20on%20Image{altText%20url%20id}...%20on%20Video{id}...%20on%20Clip{id}}id}beauty{photosTout{__typename%20...%20on%20Image{altText%20url%20id}...%20on%20Video{id}...%20on%20Clip{id}}id}collection{photosTout{__typename%20...%20on%20Image{altText%20url%20id}...%20on%20Video{id}...%20on%20Clip{id}}id}detail{photosTout{__typename%20...%20on%20Image{altText%20url%20id}...%20on%20Video{id}...%20on%20Clip{id}}id}frontRow{photosTout{__typename%20...%20on%20Image{altText%20url%20id}...%20on%20Video{id}...%20on%20Clip{id}}id}}}id}}}}fragment%20SwipeSlideshowRelay_data%20on%20Root{...EndSlideRelay_data}fragment%20RunwaySlideshowHeaderRelay_fashionShow%20on%20FashionShowV2{...SlideshowTitleRelay_fashionShow}fragment%20SlideshowTitleRelay_fashionShow%20on%20FashionShowV2{brand{name%20url%20id}season{name%20url%20id}}fragment%20EndSlideRelay_fashionShow%20on%20FashionShowV2{...SlideshowTitleRelay_fashionShow%20...SocialSharerRelay%20season{name%20url%20id}}fragment%20SwipeSlideshowRelay_fashionShow%20on%20FashionShowV2{...EndSlideRelay_fashionShow%20brand{slug%20id}}fragment%20SocialSharerRelay%20on%20Content{__typename%20id%20title%20url%20photosTout{__typename%20...%20on%20Image{url%20id}...%20on%20MixedMedia{default{__typename%20...%20on%20Image{title%20url}id}}...%20on%20Video{id}...%20on%20Clip{id}}GMTPubDate%20GMTModDate%20meta{facebook{title%20description%20imageURL}seo{title%20description%20keywords}twitter{title%20description%20imageURL}}}fragment%20BaseHelmetRelay%20on%20Content{...%20on%20FashionShowV2{reviewContributors:review{contributor{artist{name%20id}author{name%20id}editor{name%20id}photographer{name%20id}videographer{name%20id}}id}}GMTPubDate%20GMTModDate%20channels{id%20name}channel{id%20name%20parent{id%20name}}tags{id%20name}contributor{artist{name%20id}author{name%20id}editor{name%20id}photographer{name%20id}videographer{name%20id}}meta{facebook{title%20description%20imageURL}seo{title%20description%20keywords}twitter{title%20description%20imageURL}}}fragment%20SlideshowAdColumnRelay_fashionGallery%20on%20FashionShowGallery{...SocialSharerRelay}fragment%20GridViewRelay_slides%20on%20SlideInterface{photosTout{__typename%20...%20on%20Image{url%20id}...%20on%20Video{id}...%20on%20Clip{id}}}fragment%20FeedHeaderRelay%20on%20Root{headerTerm:term(hierarchy:$hierarchy){...TermSocialSharerRelay%20name%20description%20pageHeader{colorScheme%20bannerLink%20bannerLinkTitle%20bannerImage}parent{name%20pageHeader{colorScheme%20bannerLink%20bannerLinkTitle%20bannerImage}id}id}}fragment%20SiteHeaderRelay%20on%20Root{allSeasons(first:10){edges{node{id%20name%20url}}}}fragment%20TermSocialSharerRelay%20on%20Term{name%20url%20meta{seo{title%20description%20keywords}}}&variables='
 
-      let vars = '{%22brandSlug%22:%22' + params.slug + '%22,%22count%22:' + params.count + ',%22galleryType%22:%22collection%22,%22hierarchy%22:null,%22seasonSlug%22:%22' + this.show + '%22,%22slug%22:null}'
+      let vars = '{%22brandSlug%22:%22' + params.slug + '%22,%22count%22:'+ params.count +',%22galleryType%22:%22collection%22,%22hierarchy%22:null,%22seasonSlug%22:%22' + this.show + '%22,%22slug%22:null}'
       let fullQuery = query + vars
       let options = {
         host: 'graphql.vogue.com',
@@ -206,32 +205,7 @@ class Vogue {
                 imageArry.push(image.node.photosTout.url)
               })
               this.showImages[params.slug] = imageArry
-              // Open file
-              let fileContents = []
-              console.log(params.file)
-              fs.access(params.file, exists => {
-                if (exists) {
-                  console.log(params.file)
-                  fs.readFile(params.file, 'utf8', (err, data) => {
-                    if (err) {
-                      console.log(err)
-                    } else {
-                      fileContents = JSON.parse(fileContents)
-                    }
-                  })
-                }
-              })
-              console.log(fileContents)
-              let temp = {}
-              temp[params.slug] = imageArry
-              fileContents.push(temp)
-              fileContents = JSON.stringify(fileContents) // convert it back to json
-              fs.appendFile(params.file, fileContents, 'utf8', err => {
-                if (err) {
-                  console.log(err)
-                }
-              })
-              console.log('\x1B[0GFetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length + '\x1B[0G')
+              process.stdout.write('\x1B[0GFetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length + '\x1B[0G')
               setTimeout(resolve, this.rateLimit)
             } else {
               reject('no images found for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
@@ -279,8 +253,6 @@ class Vogue {
           if ((response.headers['content-length'] * 0.000001) > 1) {
             message = Number((response.headers['content-length'] * 0.000001).toFixed(4)) + ' MB'
           }
-          console.log(typeof fileSizeInBytes)
-          console.log(response.headers['content-length'])
           if (fileSizeInBytes == response.headers['content-length']) {
             // TODO: add in close connection so we terminate
             process.stdout.write('\x1B[0GCompared ' + filename + ' stored file size matches fetched file size: ' + message + '\x1B[0G')
