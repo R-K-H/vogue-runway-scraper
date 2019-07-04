@@ -53,22 +53,22 @@ class Vogue {
       if (stepCount === 1) {
         let looks = await this.getShowsLooksList()
         if (looks) {
-          fs.appendFile('./json/' + this.show + '-looks.json', JSON.stringify(looks), function (err) {
-            if (err) {
-              console.log(err)
-            }
-            console.log('saved all looks to json file')
-          })
+          // fs.appendFile(path.join('./json/', this.show, '-looks.json'), JSON.stringify(looks), err => {
+          //   if (err) {
+          //     console.log(err)
+          //   }
+          //   console.log('Saved all looks to json file')
+          // })
           return new Promise((resolve, reject) => { resolve(looks) })
         }
       } else if (stepCount === 2) {
         let images = await this.getAllShowsLooksImages()
         if (images) {
-          fs.appendFile('./json/' + this.show + '-images.json', JSON.stringify(this.showImages), function (err) {
+          fs.appendFile(path.join('./json/', this.show, '-images.json'), JSON.stringify(this.showImages), err => {
             if (err) {
               console.log(err)
             }
-            console.log('saved all images to json file')
+            console.log('Saved all images to json file')
           })
           return new Promise((resolve, reject) => { resolve(images) })
         }
@@ -117,7 +117,8 @@ class Vogue {
             count: 200,
             last: false,
             index: index,
-            length: array.length
+            length: array.length,
+            file: file
           }
           promises.push(p = p.then(this.getShowImagesUrl.bind(this, params))
             .catch(err => console.log('\x1b[41m%s\x1b[0m', err))
@@ -205,6 +206,31 @@ class Vogue {
                 imageArry.push(image.node.photosTout.url)
               })
               this.showImages[params.slug] = imageArry
+              // Open file
+              let fileContents = []
+              console.log(params.file)
+              fs.access(params.file, exists => {
+                if (exists) {
+                  console.log(params.file)
+                  fs.readFile(params.file, 'utf8', (err, data) => {
+                    if (err) {
+                      console.log(err)
+                    } else {
+                      fileContents = JSON.parse(fileContents)
+                    }
+                  })
+                }
+              })
+              console.log(fileContents)
+              let temp = {}
+              temp[params.slug] = imageArry
+              fileContents.push(temp)
+              fileContents = JSON.stringify(fileContents) // convert it back to json
+              fs.appendFile(params.file, fileContents, 'utf8', err => {
+                if (err) {
+                  console.log(err)
+                }
+              })
               console.log('\x1B[0GFetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length + '\x1B[0G')
               setTimeout(resolve, this.rateLimit)
             } else {
@@ -253,6 +279,8 @@ class Vogue {
           if ((response.headers['content-length'] * 0.000001) > 1) {
             message = Number((response.headers['content-length'] * 0.000001).toFixed(4)) + ' MB'
           }
+          console.log(typeof fileSizeInBytes)
+          console.log(response.headers['content-length'])
           if (fileSizeInBytes == response.headers['content-length']) {
             // TODO: add in close connection so we terminate
             process.stdout.write('\x1B[0GCompared ' + filename + ' stored file size matches fetched file size: ' + message + '\x1B[0G')
