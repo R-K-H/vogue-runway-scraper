@@ -57,7 +57,7 @@ class Vogue {
             if (err) {
               console.log(err)
             }
-            console.log('saved all looks to json file')
+            console.log('Saved all looks to json file')
           })
           return new Promise((resolve, reject) => { resolve(looks) })
         }
@@ -68,7 +68,7 @@ class Vogue {
             if (err) {
               console.log(err)
             }
-            console.log('saved all images to json file')
+            console.log('Saved all images to json file')
           })
           return new Promise((resolve, reject) => { resolve(images) })
         }
@@ -205,7 +205,7 @@ class Vogue {
                 imageArry.push(image.node.photosTout.url)
               })
               this.showImages[params.slug] = imageArry
-              process.stdout.write('\x1B[0GFetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length + '\x1B[0G')
+              console.log('\x1B[0GFetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length + '\x1B[0G')
               setTimeout(resolve, this.rateLimit)
             } else {
               reject('no images found for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
