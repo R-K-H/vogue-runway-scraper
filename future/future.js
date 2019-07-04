@@ -1,3 +1,5 @@
+const isDirectory = source => fs.lstatSync(source).isDirectory()
+
 // This fetches from the page the total number of looks in the show for the season
     // TODO: We should really use this count to enforce the number of images we want to retrieve
     // from the graphql.
