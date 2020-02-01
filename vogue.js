@@ -32,19 +32,17 @@ class Vogue {
     this.showImages = {}
   }
 
-  checkFile (file) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (fs.existsSync(file)) {
-          resolve(JSON.parse(fs.readFileSync(file, 'utf8')))
-        } else {
-          console.log('Empty file found.')
-          resolve({})
-        }
-      } catch (err) {
-        reject(err)
+  async checkFile (file) {
+    try {
+      if (fs.existsSync(file)) {
+        return await JSON.parse(fs.readFileSync(file, 'utf8'))
+      } else {
+        console.log('Empty file found.')
+        return {}
       }
-    })
+    } catch (err) {
+      return err
+    }
   }
 
   async checkStep (file, stepCount) {
