@@ -32,108 +32,98 @@ class Vogue {
     this.showImages = {}
   }
 
-  checkFile (file) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (fs.existsSync(file)) {
-          resolve(JSON.parse(fs.readFileSync(file, 'utf8')))
-        } else {
-          console.log('Empty file found.')
-          resolve({})
-        }
-      } catch (err) {
-        reject(err)
+  checkFile = async file => {
+    try {
+      if (fs.existsSync(file)) {
+        return await JSON.parse(fs.readFileSync(file, 'utf8'))
+      } else {
+        console.log('Empty file found.')
+        return {}
       }
-    })
+    } catch (err) {
+      return err
+    }
   }
 
-  async checkStep (file, stepCount) {
+  checkStep = async (file, stepCount) => {
     let readFile = await this.checkFile(file)
     if (_.isEmpty(readFile)) {
-      if (stepCount === 1) {
-        let looks = await this.getShowsLooksList()
-        if (looks) {
-          fs.appendFile('./json/' + this.show + '-looks.json', JSON.stringify(looks), err => {
-            if (err) {
-              console.log(err)
-            }
-            console.log('Saved all looks to json file')
-          })
-          return new Promise((resolve, reject) => { resolve(looks) })
-        }
-      } else if (stepCount === 2) {
-        let images = await this.getAllShowsLooksImages()
-        if (images) {
-          fs.appendFile('./json/' + this.show + '-images.json', JSON.stringify(this.showImages), err => {
-            if (err) {
-              console.log(err)
-            }
-            console.log('Saved all images to json file')
-          })
-          return new Promise((resolve, reject) => { resolve(images) })
-        }
+      let looks = await this.getShowsLooksList()
+      if (looks) {
+        fs.appendFile('./json/' + this.show + '-looks.json', JSON.stringify(looks), err => {
+          if (err) {
+            console.log(err)
+          }
+          console.log('Saved all looks to json file')
+        })
+        //return looks
+      }
+      let images = await this.getAllShowsLooksImages()
+      if (images) {
+        fs.appendFile('./json/' + this.show + '-images.json', JSON.stringify(this.showImages), err => {
+          if (err) {
+            console.log(err)
+          }
+          console.log('Saved all images to json file')
+        })
+        //return images
       }
     } else {
-      return new Promise((resolve, reject) => { resolve(readFile) })
+      return readFile
     }
   }
 
   // Build list of all the shows with their vogue url as well as their titles
-  getShowsLooksList () {
-    return new Promise((resolve, reject) => {
-      x('https://www.vogue.com/fashion-shows/' + this.show,
-        '.season-module li .tab-list--item', [
-          {
-            prettyTitle: 'a@html | encodeUri',
-            title: 'a@href | stripSlug | formatSlug',
-            link: 'a@href',
-            slug: 'a@href | stripSlug'
-          }
-        ]
-      )
-        .then(res => { resolve(res) })
-    })
+  getShowsLooksList = async () => {
+    x('https://www.vogue.com/fashion-shows/' + this.show,
+      '.season-module li .tab-list--item', [
+        {
+          prettyTitle: 'a@html | encodeUri',
+          title: 'a@href | stripSlug | formatSlug',
+          link: 'a@href',
+          slug: 'a@href | stripSlug'
+        }
+      ]
+    ).then(res => { return res })
   }
 
   // This gets all the looks for each show by iterating though the getShowImagesUrl which writes it to a JSON file
-  async getAllShowsLooksImages () {
+  getAllShowsLooksImages = async () => {
     let file = './json/' + this.show + '-looks.json'
     // Check to see if file has contents if not run to generate
     let collections = await this.checkStep(file, 1)
     if (collections) {
-      return new Promise((resolve, reject) => {
-        let slugs = []
-        _.forEach(collections, collection => {
-          if (collection.prettyTitle !== null) {
-            slugs.push(collection.slug)
+      let slugs = []
+      for (let i = 0; collections.length > i; i++) {
+        if (collections[i].prettyTitle !== null) {
+          slugs.push(collections[i].slug)
+        }
+      }
+      let sortedSlugs = slugs.sort()
+      let p = Promise.resolve()
+      let promises = []
+      for (let i = 0; sortedSlugs.length > i; i++) {
+        let params = {
+          slug: sortedSlugs[i].slug,
+          count: 200,
+          last: false,
+          index: i,
+          length: sortedSlugs.length
+        }
+        promises.push(p = p.then(this.getShowImagesUrl.bind(this, params))
+          .catch(err => console.log('\x1b[41m%s\x1b[0m', err))
+        )
+      }
+      Promise.all(promises)
+        .then(resp => {
+          if (resp) {
+            return this.showImages
           }
         })
-        let sortedSlugs = slugs.sort()
-        let p = Promise.resolve()
-        let promises = []
-        _.forEach(sortedSlugs, (slug, index, array) => {
-          let params = {
-            slug: slug,
-            count: 200,
-            last: false,
-            index: index,
-            length: array.length
-          }
-          promises.push(p = p.then(this.getShowImagesUrl.bind(this, params))
-            .catch(err => console.log('\x1b[41m%s\x1b[0m', err))
-          )
+        .catch(error => {
+          console.log(error)
+          return false
         })
-        Promise.all(promises)
-          .then(resp => {
-            if (resp) {
-              resolve(this.showImages)
-            }
-          })
-          .catch(error => {
-            console.log(error)
-            reject(false)
-          })
-      })
     }
   }
 
@@ -141,7 +131,7 @@ class Vogue {
   // promises in order to ensure each image is downloaded before the next one starts
   // so as not to a) kill your internet connection (show for 2019-spring was ~20GB)
   // and b) not to upset vogue with too many requests.
-  async downloadLookImages () {
+  downloadLookImages = async () => {
     let file = './json/' + this.show + '-images.json'
     // Check to see if file has contents if not run to generate
     let imageSets = await this.checkStep(file, 2)
@@ -273,4 +263,5 @@ class Vogue {
     await this.downloadLookImages()
   }
 }
+
 module.exports = Vogue
