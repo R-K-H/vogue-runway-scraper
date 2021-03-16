@@ -11,7 +11,7 @@
   "dependencies": {
     "dotenv": "8.0.0",
     "https": "1.0.0",
-    "lodash": "4.17.11",
+    "lodash": "4.17.19",
     "request": "2.88.0",
     "x-ray": "2.3.3"
   },
