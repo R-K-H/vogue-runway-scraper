@@ -6,6 +6,22 @@ This nodejs application takes a parameter and then builds several json files to 
 ## Installation
 Simple easy to use node app.
 
+To use this you MUST have node installed on your system. Visit https://nodejs.org/en/ to download and install node.
+
+Once you have node installed, locate the code button on this repository and click clone, be sure you're using HTTPS tab. It should be a url like this.
+
+`https://github.com/R-K-H/vogue-runway-scraper.git`
+
+In your terminal type `git clone https://github.com/R-K-H/vogue-runway-scraper.git`
+
+Once you've cloned the respository change in to that directory using
+
+```
+cd vogue-runway-scraper
+```
+
+You'll need to install the packages this scraper requires with the following command.
+
 ```shell
 npm install
 ```
@@ -16,7 +32,13 @@ If using in development environment, copy over the example.env over to .env, you
 cp example.env .env
 ```
 
-Then set the `RATE_LIMIT`, `NODE_ENV` and `SHOW` environment variables to your desired show. For example:
+Then open the .env file up using your favorite editor for example:
+
+```
+vim .env
+```
+
+and set the `RATE_LIMIT`, `NODE_ENV` and `SHOW` environment variables to your desired show. For example:
 
 ```
 RATE_LIMIT=500
@@ -25,6 +47,13 @@ SHOW=spring-2016-ready-to-wear
 ```
 
 Note: 1000 ms = 1 second, so the rate limit is setup for miliseconds. If you're noticing issues with requests, try bumping it up, it'll reduce the frequency for the requests and might solve any issues.
+
+Then to run the sofware you can use
+```shell
+npm start
+```
+
+or alternatively
 
 ```shell
 node app.js

@@ -196,7 +196,7 @@ class Vogue {
 
         res.on('end', () => {
           let obj = JSON.parse(content)
-          if (obj.data.hasOwnProperty('fashionGallery') && obj.data.fashionGallery !== null) {
+          if (obj.data !== undefined && obj.data.hasOwnProperty('fashionGallery') && obj.data.fashionGallery !== null) {
             if (obj.data.fashionGallery.hasOwnProperty('slidesV2') && obj.data.fashionGallery !== null) {
               let images = obj.data.fashionGallery.slidesV2.edges
               let imageArry = []
@@ -205,6 +205,7 @@ class Vogue {
               })
               this.showImages[params.slug] = imageArry
               console.log('\x1B[0GFetching images list for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length + '\x1B[0G')
+              // TODO: Write to file as we go along.
               setTimeout(resolve, this.rateLimit)
             } else {
               reject('no images found for ' + params.slug + ' ' + (params.index + 1) + '/' + params.length)
