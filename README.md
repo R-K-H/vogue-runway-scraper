@@ -1,5 +1,5 @@
 # Vogue Fashion Show Image Scraper
-This nodejs application takes a parameter and then builds several json files to parse with other functions all in order to download and organize runway show looks. Please note this is working as of last commit date and I may not update it in between, therefore if html elements change then it might break.
+This nodejs application takes parameters and then builds several files to parse with other functions all in order to download and organize runway show "looks".
 
 - https://www.vogue.com/fashion-shows
 
@@ -26,28 +26,6 @@ You'll need to install the packages this scraper requires with the following com
 npm install
 ```
 
-If using in development environment, copy over the example.env over to .env, you'll use this to set which show. If you're using an editor through terminal:
-
-```shell
-cp example.env .env
-```
-
-Then open the .env file up using your favorite editor for example:
-
-```
-vim .env
-```
-
-and set the `RATE_LIMIT`, `NODE_ENV` and `SHOW` environment variables to your desired show. For example:
-
-```
-RATE_LIMIT=500
-NODE_ENV=development
-SHOW=spring-2016-ready-to-wear
-```
-
-Note: 1000 ms = 1 second, so the rate limit is setup for miliseconds. If you're noticing issues with requests, try bumping it up, it'll reduce the frequency for the requests and might solve any issues.
-
 Then to run the sofware you can use
 ```shell
 npm start
@@ -59,55 +37,19 @@ or alternatively
 node app.js
 ```
 
-If using in a production enviornment:
-```shell
-RATE_LIMIT=500 SHOW='spring-2016-ready-to-wear' node app.js
-```
+Please note that the rateLimit is set in milliseconds so 1000 ms = 1 second. If you're noticing issues with requests, try bumping it up, it'll reduce the frequency for the requests and might solve any issues.
 
-## Functions
-
-`getShowsList()`
-
-This will get the list of shows from the page and organize it in a JSON file `(./json/shows.json)` with
-
-```json
-[
-	{
-	    "prettyTitle": "A%20D%26%23xE9%3Btacher",
-	    "title": "A DETACHER",
-	    "link": "https://www.vogue.com/fashion-shows/spring-2019-ready-to-wear/a-detacher",
-	    "slug": "a-detacher"
-	}, 
-]
-```
-
-`getAllShowsLooks(collections)`
-
-Once you have the JSON file `(./json/shows.json)` then you are able to fetch all the images from the show which will return another JSON file `(./json/images.json)` with
-
-```json
-[
-	{
-		"atm-anthony-thomas-melillo": 
-			[
-				"https://assets.vogue.com/photos/5b90541bd80cfc2de0ad06fe/master/pass/00001-atm-vogue-ready-to-wear-SS19-pr.jpg",
-			]
-	},
-]
-```
-
-`getLookImages(imageSets)`
-
-Once you have the JSON file `(./json/images.json)` then you are able to fetch each image. The download is called with a promise that builds a chain of promises to ensure one download is complete before the next one is started. This will save files in the `./images/{show}/{designer}` in an interative manner (eg. 1, 2, 3) depending on the order they are received from the JSON response from graphql.
+Answer with all lowercase and hyphenated names so `chanel` or `spring-2019-ready-to-wear`, yes and no should be only yes and no and lowercase as well.
 
 
 ## Future
 - Allow user to set folder location
-- Research and improve graphql query (might be able to select image size etc)
 - Setup unit tests
 - Setup compare tests (eg. folders have more images than the look should)
 - Compare image look number to what we saved it as (so you wouldn't ever pull a look that isn't the correct number)
 - Cleanup (rename files to match functions or vice versa, etc)
 
 ## License
-This application should be used at your own risk.
+GPL-3.0 [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
+This is application / project / work in no way associated with Vogue, all mentions of Vogue or associates are property of the respective party. USE OF THIS APPLICATION WAIVES ANY CLAIMS TO OR OF THE DEVELOPER AND THIS APPLICATION IS TO BE USED AT YOUR OWN RISK.
