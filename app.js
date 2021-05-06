@@ -20,17 +20,17 @@ try {
 		{
 			type: 'text',
 	    	name: 'designerBool',
-	    	message: 'Are you interested in scraping a designer?',
+	    	message: 'Are you interested in adding only a designer to your collection? (yes or no)',
 		},
 		{
 			type: prev => prev.toLowerCase() == 'yes' ? 'text' : null,
 			name: 'designer',
-			message: 'Which designer?'
+			message: 'Which designer would you like to collect? (lowercase with hypens)'
 		},
 		{
 			type: prev => prev == 'no' ? 'text' : null,
-	    	name: 'show',
-	    	message: 'Which show would you like to scrape?',
+	    	name: 'season',
+	    	message: 'Which season would you like to add to your collection? (lowercase with hypens)',
 		},
 		
 		{
@@ -42,17 +42,14 @@ try {
 	const onSubmit = (prompt, answer) => console.log(`Thanks I got ${answer} from ${prompt.name}`);
 	const response = await prompts(questions, { onSubmit });
 	let _designer = null
-	let _show = null
-	console.log(response)
+	let _season = null
 	if (response.designerBool.toLowerCase() != 'no' && response.hasOwnProperty('designer')) {
 		_designer = response.designer
-		console.log('designer triggered')
 	} else {
-		_show = response.show
-		console.log('show triggered')
+		_season = response.season
 	}
 	let _rateLimit = response.rateLimit
-	const vogue = new Vogue(_rateLimit, _show, _designer)
+	const vogue = new Vogue(_rateLimit, _season, _designer)
 	vogue.run()
 })();
 
