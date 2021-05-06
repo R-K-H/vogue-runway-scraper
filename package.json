@@ -10,12 +10,8 @@
   },
   "dependencies": {
     "dotenv": "9.0.0",
-    "https": "1.0.0",
-    "lodash": "4.17.21",
     "node-fetch": "^2.6.1",
-    "prompts": "^2.4.1",
-    "request": "2.88.2",
-    "x-ray": "2.3.4"
+    "prompts": "^2.4.1"
   },
   "devDependencies": {
     "babel-eslint": "10.1.0",
@@ -25,8 +21,8 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.0",
     "eslint-plugin-react": "7.23.2",
-    "npm-check-updates": "^11.5.10",
-    "eslint-plugin-standard": "5.0.0"
+    "eslint-plugin-standard": "5.0.0",
+    "npm-check-updates": "^11.5.10"
   },
   "engines": {},
   "repository": {
@@ -35,7 +31,11 @@
   },
   "keywords": [
     "vogue",
-    "scraper"
+    "scraper",
+    "crawler",
+    "downloader",
+    "fashion",
+    "shows"
   ],
   "author": "Kollan House <kollanh@gmail.com>",
   "license": "GNU General Public License v3.0"

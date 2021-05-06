@@ -1,35 +1,8 @@
-const https = require('https')
 const fsp = require('fs').promises
 const fs = require('fs')
-const _ = require('lodash')
-const path = require('path')
-const Xray = require('x-ray')
-const request = require('request')
 const fetch = require('node-fetch')
 const {pipeline} = require('stream')
 const {promisify} = require('util')
-
-const x = Xray({ filters: {
-  encodeUri: value => {
-    return typeof value === 'string' ? encodeURIComponent(value) : value
-  },
-  stripSlug: value => {
-    const regex = /(?=[^\/]+$)(.*)/
-    return typeof value === 'string' ? regex.exec(value)[0] : value
-  },
-  formatSlug: value => {
-    return typeof value === 'string' ? value.toUpperCase().replace(/(-+)/g, ' ') : value
-  },
-  countToInt: value => {
-    return typeof value === 'string' ? parseInt(value) : value
-  },
-  nullify: value => {
-    return value.length ? value : null
-  },
-  makeSmall: value => {
-    return typeof value === 'string' ? value.toLowerCase().replace(/ /g, '-') : value
-  }
-} })
 
 class Vogue {
   constructor (rateLimit, season = null, designer = null) {
