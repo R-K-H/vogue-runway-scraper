@@ -235,8 +235,12 @@ class Vogue {
           let url = image
           let designer = this.designer
           let show = this.show
+          let parentDir = path.join(__dirname, '/images/', show)
+          let dir = path.join(__dirname, '/images/', show, '/', designer, '/')
           if (this.designer != null) {
             show = _.keys(imageSets)[j]
+            parentDir = path.join(__dirname, '/images/', designer)
+            dir = path.join(__dirname, '/images/', designer, '/', show, '/')
           } else {
             designer = _.keys(imageSets)[j]
           }
@@ -245,8 +249,8 @@ class Vogue {
           // Download to a directory and save with the original filename
           const params = {
             uri: url,
-            parentDir: path.join(__dirname, '/images/', show),
-            dir: path.join(__dirname, '/images/', show, '/', designer, '/'),
+            parentDir: parentDir,
+            dir: dir,
             designer: designer,
             filename: designer + ' ' + i + '.jpg' // Save to /path/to/dest/image.jpg
           }
@@ -263,6 +267,12 @@ class Vogue {
     }
   }
 
+  apiEndpoints () {
+    let allBrands = 'query{allBrands{Brand{name%20slug}}}'
+    let allSeasons = 'query{allSeasons{Season{name%20slug}}}'
+    let collections = ' query{ fashionShowV2(slug: "fall-2019-ready-to-wear/chanel") { GMTPubDate url title slug id instantShow city { name } brand { name slug } season { name slug year } photosTout { ... on Image { url } } review { pubDate body contributor { author { name photosTout { ... on Image { url } } } } } galleries { collection { ... GalleryFragment } atmosphere { ... GalleryFragment } beauty { ... GalleryFragment } detail { ... GalleryFragment } frontRow { ... GalleryFragment } } video { url cneId title } } } fragment GalleryFragment on FashionShowGallery { title meta { ...metaFields } slidesV2 { ... on GallerySlidesConnection { slide { ... on Slide { id credit photosTout { ...imageFields } } ... on CollectionSlide { id type credit title photosTout { ...imageFields } }  __typename } } } } fragment imageFields on Image { id url caption credit width height } fragment metaFields on Meta { facebook { title description } twitter { title description } }'
+    let allContent = 'query { allContent(type: ["FashionShowV2"], first: 25, filter: { brand: { slug: "chanel" } }) { Content { id GMTPubDate url title slug _cursor_ ... on FashionShowV2 { instantShow brand { name slug } season { name slug year } photosTout { ... on Image { url } } } } pageInfo { hasNextPage hasPreviousPage startCursor endCursor } } }'
+  }
   // This uses vogues graphql to get a list from the shows using the slug and a modified count (to fetch them all)
   // TODO: Look into their actual graphql to see if we could simplify this and retrieve what we want to in a more
   // ordered fashion vs their user for slideshows.

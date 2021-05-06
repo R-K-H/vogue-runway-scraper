@@ -1,6 +1,6 @@
 {
   "name": "vogue-runway-scraper",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Scrapes Vogue's fashion shows.",
   "main": "app.js",
   "private": true,
