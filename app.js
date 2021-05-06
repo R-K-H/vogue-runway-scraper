@@ -16,6 +16,23 @@ try {
 
 
 (async () => {
+	console.log(`Welcome to Vogue Runway Scraper`)
+	console.log(`v2.0.0`)
+	console.log(``)
+	console.log(`Visit https://github.com/R-K-H/vogue-runway-scraper if you experience any issues.`)
+	console.log(``)
+	console.log(`If you are getting timed out or experiencing issues with downloads, try increasing the rate limit.`)
+	console.log(`There may be bugs! If you notice anything or have a feature request please email kollanh@gmail.com.`)
+	console.log(``)
+	console.log(`This program fetches from Vogue's GraphQL API for designers (brands) and seasons, it's been adapted to`)
+	console.log(`fetch and download all the images for each season and or brand season.`)
+	console.log(``)
+	console.log(`Respond to the questions below and things should get to work.`)
+	console.log(``)
+	console.log(``)
+	console.log(``)
+	console.log(``)
+
 	const questions = [
 		{
 			type: 'text',
