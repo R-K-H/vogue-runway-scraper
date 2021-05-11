@@ -9,6 +9,7 @@
     "dev": "node ./app.js -- watch"
   },
   "dependencies": {
+    "cli-progress": "^3.9.0",
     "dotenv": "9.0.0",
     "node-fetch": "^2.6.1",
     "prompts": "^2.4.1"

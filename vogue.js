@@ -3,6 +3,7 @@ const fs = require('fs')
 const fetch = require('node-fetch')
 const {pipeline} = require('stream')
 const {promisify} = require('util')
+const cliProgress = require('cli-progress')
 
 class Vogue {
   constructor (rateLimit, season = null, designer = null) {
@@ -17,6 +18,11 @@ class Vogue {
     if (designer != null) {
       this.designer = designer.toLowerCase()
     }
+    this.multibar = new cliProgress.MultiBar({
+        clearOnComplete: false,
+        hideCursor: true,
+        format: '{task} [{bar}] {percentage}% | ETA: {eta}s | {value}/{total} | {filename}'
+    }, cliProgress.Presets.shades_grey)
   }
 
   async httpRequest (params) {
@@ -55,6 +61,7 @@ class Vogue {
     return await this.httpRequest(allContent)
   }
 
+  // TODO: Paginate
   getSeasonBrandCollections (season = null, brand = null, slug) {
     let querySlug = slug
     if (season != null && brand != null) {
@@ -70,11 +77,20 @@ class Vogue {
 
   async parseCollections (collections) {
     // TODO: What if there are more galleries?
-    return collections.fashionShowV2.galleries.collection.slidesV2.slide
+    // collection, atmosphere, beauty, detail, frontRow, video
+    let galleries = collections.fashionShowV2.galleries
+    let slides = []
+    for await(const [ gallery, slide ] of Object.entries(galleries)) {
+      if(slide != null) {
+        slides = slides.concat(slide.slidesV2.slide)
+      }
+    }
+    return slides
   }
 
+  // TODO: Retval typing
   async parseImageUrl (image) {
-    return image.photosTout.url
+    return image.photosTout.url.toString()
   }
 
   async downloadImageTest (url, dir, subFolder, designer, number) {
@@ -112,74 +128,101 @@ class Vogue {
       throw new Error(`unable to write to file ${error}`)
     }
   }
+
+  // TODO: Add in progress bar
   // TODO: Add in folder selection
   // TODO: Add in naming selection
   // TODO: Setup so you can run commands specifically
   // TODO: Fetch all of everything (brands / seasons)
+  // TODO: Add in specific url or designer / season you want to select
+  // TODO: Add in terminal output for season / designer to autocomplete?
   async run () {
     if (this.season != null) {
       console.log(`season has been defined, running season collector.....`)
       let response = await this.getSeasonContent(this.season)
       let seasonArray = await this.parseContent(response)
+      const seasonBar = this.multibar.create(seasonArray.length, 0, {task: "Designers", filename: this.season})
       for (let i = 0; seasonArray.length > i; i++) {
         let designer = seasonArray[i].brand.slug
-        console.log(`found designer ${designer} processing...`)
+        // console.log(`found designer ${designer} processing...`)
         
         let season = seasonArray[i].season.slug
-        console.log(`found season ${season} processing...`)
+        // console.log(`found season ${season} processing...`)
         
         let collections = await this.getSeasonBrandCollections(null, null, seasonArray[i].slug)
-        let images = await this.parseCollections(collections)
-        let fileName = `${designer}_${season}.txt`
-        
-        for (let j = 0; images.length > j; j++) {
-          let imageUrl = await this.parseImageUrl(images[j])
-          
-          let fileContents = await this.loadFile(fileName, season, designer)
-          if (fileContents.includes(imageUrl)) {
-            console.log('we already have the file skipping...')
-            continue
+        try {
+          let images = await this.parseCollections(collections)
+          let fileName = `${designer}_${season}.txt`
+          const imageBar = this.multibar.create(images.length, 0, {task: "Images"})
+          for (let j = 0; images.length > j; j++) {
+            let imageUrl = await this.parseImageUrl(images[j])
+            
+            let fileContents = await this.loadFile(fileName, season, designer)
+            if (fileContents.includes(imageUrl)) {
+              // console.log('we already have the file skipping...')
+              imageBar.update(j, {filename: `skipping ${imageUrl}`})
+              continue
+            }
+            // console.log(`downloading ${imageUrl}...`)
+            let image = await this.downloadImageTest(imageUrl, season, designer, designer, j)
+            fileContents.push(imageUrl)
+            // console.log(await this.writeToFile(fileName, season, designer, fileContents, imageUrl))
+            // console.log(`waiting ${this.rateLimit}...`)
+            imageBar.update(j, {filename: imageUrl})
+            await this.sleep(this.rateLimit)
           }
-          console.log(`downloading ${imageUrl}...`)
-          let image = await this.downloadImageTest(imageUrl, season, designer, designer, j)
-          fileContents.push(imageUrl)
-          console.log(await this.writeToFile(fileName, season, designer, fileContents, imageUrl))
-          console.log(`waiting ${this.rateLimit}...`)
-          await this.sleep(this.rateLimit)
+          seasonBar.update(i, {filename: season})
+          this.multibar.remove(imageBar)
+        } catch (error) {
+          console.error(`there was an error with fetching the collections ${error}`)
+          seasonBar.update(i, {filename: season})
+          continue
         }
       }
     } else if (this.designer != null) {
       console.log(`designer has been defined, running designer collector.....`)
       let response = await this.getBrandConent(this.designer)
       let brandSeasonArray = await this.parseContent(response)
+      const seasonBar = this.multibar.create(brandSeasonArray.length, 0, {task: "Seasons", filename: this.designer})
       for (let i = 0; brandSeasonArray.length > i; i++) {
         let designer = brandSeasonArray[i].brand.slug
-        console.log(`found designer ${designer} processing...`)
+        // console.log(`found designer ${designer} processing...`)
         
         let season = brandSeasonArray[i].season.slug
-        console.log(`found season ${season} processing...`)
+        // console.log(`found season ${season} processing...`)
         
         let collections = await this.getSeasonBrandCollections(null, null, brandSeasonArray[i].slug)
-        let images = await this.parseCollections(collections)
-        let fileName = `${designer}_${season}.txt`
-        
-        for (let j = 0; images.length > j; j++) {
-          let imageUrl = await this.parseImageUrl(images[j])
-          
-          let fileContents = await this.loadFile(fileName, designer, season)
-          if (fileContents.includes(imageUrl)) {
-            console.log('we already have the file skipping...')
-            continue
+        try {
+          let images = await this.parseCollections(collections)
+          let fileName = `${designer}_${season}.txt`
+          const imageBar = this.multibar.create(images.length, 0, {task: "Images"})
+          for (let j = 0; images.length > j; j++) {
+            let imageUrl = await this.parseImageUrl(images[j])
+            
+            let fileContents = await this.loadFile(fileName, designer, season)
+            if (fileContents.includes(imageUrl)) {
+              // console.log('we already have the file skipping...')
+              imageBar.update(j, {filename: `skipping ${imageUrl}`})
+              continue
+            }
+            // console.log(`downloading ${imageUrl}...`)
+            let image = await this.downloadImageTest(imageUrl, designer, season, designer, j)
+            fileContents.push(imageUrl)
+            // console.log(await this.writeToFile(fileName, designer, season, fileContents, imageUrl))
+            // console.log(`waiting ${this.rateLimit}...`)
+            imageBar.update(j, {filename: imageUrl})
+            await this.sleep(this.rateLimit)
           }
-          console.log(`downloading ${imageUrl}...`)
-          let image = await this.downloadImageTest(imageUrl, designer, season, designer, j)
-          fileContents.push(imageUrl)
-          console.log(await this.writeToFile(fileName, designer, season, fileContents, imageUrl))
-          console.log(`waiting ${this.rateLimit}...`)
-          await this.sleep(this.rateLimit)
+          seasonBar.update(i, {filename: season})
+          this.multibar.remove(imageBar)
+        } catch (error) {
+          console.error(`there was an error with fetching the collections ${error}`)
+          seasonBar.update(i, {filename: season})
+          continue
         }
       }
     }
+    this.multibar.stop()
   }
 
   sleep(ms) {
