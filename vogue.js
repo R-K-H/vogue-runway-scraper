@@ -52,11 +52,17 @@ class Vogue {
   }
 
   async getSeasonContent (season) {
-    let allContent = 'query{ allContent( type: ["FashionShowV2"], first:100, filter: { season: { slug:"' + season + '" } }) { Content { id GMTPubDate url title slug _cursor_ ... on FashionShowV2 { instantShow brand { name slug } season { name slug year } photosTout { ... on Image { url } } } } pageInfo { hasNextPage hasPreviousPage startCursor endCursor } } }'
+    let allContent = 'query{ allContent( type: ["FashionShowV2"], first: 1000, filter: { season: { slug:"' + season + '" } }) { Content { id GMTPubDate url title slug _cursor_ ... on FashionShowV2 { instantShow brand { name slug } season { name slug year } photosTout { ... on Image { url } } } } pageInfo { hasNextPage hasPreviousPage startCursor endCursor } } }'
     return await this.httpRequest(allContent)
   }
 
   async getBrandConent(brand) {
+    let allContent = 'query { allContent(type: ["FashionShowV2"], first: 1000, filter: { brand: { slug: "' + brand + '" } }) { Content { id GMTPubDate url title slug _cursor_ ... on FashionShowV2 { instantShow brand { name slug } season { name slug year } photosTout { ... on Image { url } } } } pageInfo { hasNextPage hasPreviousPage startCursor endCursor } } }'
+    return await this.httpRequest(allContent)
+  }
+
+  // TODO: Finish me
+  async getNextpage(brand, cursor) {
     let allContent = 'query { allContent(type: ["FashionShowV2"], first: 100, filter: { brand: { slug: "' + brand + '" } }) { Content { id GMTPubDate url title slug _cursor_ ... on FashionShowV2 { instantShow brand { name slug } season { name slug year } photosTout { ... on Image { url } } } } pageInfo { hasNextPage hasPreviousPage startCursor endCursor } } }'
     return await this.httpRequest(allContent)
   }
@@ -72,6 +78,12 @@ class Vogue {
   }
 
   async parseContent (content) {
+    // TODO: Pagination of content
+    let nextCursor = null
+    if(content.allContent.pageInfo.hasNextPage == true) {
+      nextCursor = content.allContent.pageInfo.endCursor
+      // console.log(nextCursor)
+    }
     return content.allContent.Content
   }
 
