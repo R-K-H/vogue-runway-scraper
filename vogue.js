@@ -68,13 +68,13 @@ class Vogue {
   }
 
   // TODO: Paginate
-  getSeasonBrandCollections (season = null, brand = null, slug) {
+  async getSeasonBrandCollections (season = null, brand = null, slug) {
     let querySlug = slug
     if (season != null && brand != null) {
       querySlug = season + '/' + brand
     }
     let collections = 'query{ fashionShowV2(slug: "' + querySlug + '") { GMTPubDate url title slug id instantShow city { name } brand { name slug } season { name slug year } photosTout { ... on Image { url } } review { pubDate body contributor { author { name photosTout { ... on Image { url } } } } } galleries { collection { ... GalleryFragment } atmosphere { ... GalleryFragment } beauty { ... GalleryFragment } detail { ... GalleryFragment } frontRow { ... GalleryFragment } } video { url cneId title } } } fragment GalleryFragment on FashionShowGallery { title meta { ...metaFields } slidesV2 { ... on GallerySlidesConnection { slide { ... on Slide { id credit photosTout { ...imageFields } } ... on CollectionSlide { id type credit title photosTout { ...imageFields } }  __typename } } } } fragment imageFields on Image { id url caption credit width height } fragment metaFields on Meta { facebook { title description } twitter { title description } }'
-    return this.httpRequest(collections)
+    return await this.httpRequest(collections)
   }
 
   async parseContent (content) {
@@ -160,7 +160,7 @@ class Vogue {
         
         let season = seasonArray[i].season.slug
         // console.log(`found season ${season} processing...`)
-        
+        seasonBar.update(i, {filename: designer})
         let collections = await this.getSeasonBrandCollections(null, null, seasonArray[i].slug)
         try {
           let images = await this.parseCollections(collections)
@@ -183,7 +183,6 @@ class Vogue {
             imageBar.update(j, {filename: imageUrl})
             await this.sleep(this.rateLimit)
           }
-          seasonBar.update(i, {filename: season})
           this.multibar.remove(imageBar)
         } catch (error) {
           console.error(`there was an error with fetching the collections ${error}`)
@@ -202,7 +201,7 @@ class Vogue {
         
         let season = brandSeasonArray[i].season.slug
         // console.log(`found season ${season} processing...`)
-        
+        seasonBar.update(i, {filename: season})
         let collections = await this.getSeasonBrandCollections(null, null, brandSeasonArray[i].slug)
         try {
           let images = await this.parseCollections(collections)
@@ -225,7 +224,6 @@ class Vogue {
             imageBar.update(j, {filename: imageUrl})
             await this.sleep(this.rateLimit)
           }
-          seasonBar.update(i, {filename: season})
           this.multibar.remove(imageBar)
         } catch (error) {
           console.error(`there was an error with fetching the collections ${error}`)
